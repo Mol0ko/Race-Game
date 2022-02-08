@@ -562,7 +562,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _rigidBody: {fileID: 1808106108}
   _playerInput: {fileID: 1808106106}
-  speed: 17
+  speed: 38
+  stopPower: 0.106
 --- !u!54 &1808106108
 Rigidbody:
   m_ObjectHideFlags: 0
