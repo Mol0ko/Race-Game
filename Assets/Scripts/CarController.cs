@@ -9,37 +9,67 @@ namespace RaceGame
     {
         [SerializeField]
         public Rigidbody _rigidBody;
-        [SerializeField, Range(1f, 50f)]
-        public float speed = 17f;
+        [SerializeField]
+        public PlayerInput _playerInput;
+        [SerializeField, Range(10f, 100f)]
+        public float speed = 50;
+        [SerializeField, Range(0.05f, 0.3f)]
+        public float stopPower = 0.1f;
 
 
         private Vector3 rotationRight = new Vector3(0, 30, 0);
         private Vector3 rotationLeft = new Vector3(0, -30, 0);
+        private Vector3? initialStopVelocity = null;
 
-        public void OnMoveAction(CallbackContext context)
+        private void FixedUpdate()
         {
-            // https://stackoverflow.com/questions/54832462/car-movement-in-unity/54832937
-            var key = ((KeyControl)context.control).keyCode;
-            if (key == Key.W)
-                transform.Translate(Vector3.forward * speed * Time.deltaTime);
-            if (key == Key.S)
-                transform.Translate(Vector3.back * speed * Time.deltaTime);
-
-            if (key == Key.D)
-            {
-                Quaternion deltaRotationRight = Quaternion.Euler(rotationRight * Time.deltaTime);
-                _rigidBody.MoveRotation(_rigidBody.rotation * deltaRotationRight);
-            }
-            if (key == Key.A)
-            {
-                Quaternion deltaRotationLeft = Quaternion.Euler(rotationLeft * Time.deltaTime);
-                _rigidBody.MoveRotation(_rigidBody.rotation * deltaRotationLeft);
-            }
+            var moveVector = _playerInput.actions["Move"].ReadValue<Vector2>();
+            MoveUpdate(moveVector);
+            var stopPressed = _playerInput.actions["Stop"].IsPressed();
+            if (stopPressed)
+                StopUpdate();
         }
 
-        public void OnStopAction(CallbackContext context)
+        private void MoveUpdate(Vector2 vector)
         {
+            initialStopVelocity = null;
+            var velocity = _rigidBody.velocity;
+            if (vector != Vector2.zero)
+            {
+                if (vector.y != 0 && velocity.magnitude < speed)
+                {
+                    if (vector.y > 0)
+                        _rigidBody.velocity += transform.forward * 1.1f;
+                    else
+                        _rigidBody.velocity -= transform.forward * 1.1f;
+                }
+                if (vector.x != 0)
+                {
+                    var rotation = vector.x > 0 ? rotationRight : rotationLeft;
+                    var deltaRotationRight = Quaternion.Euler(rotation * Time.fixedDeltaTime);
+                    _rigidBody.MoveRotation(_rigidBody.rotation * deltaRotationRight);
+                }
+            }
+            else if (velocity.magnitude > 0.3)
+                _rigidBody.velocity -= velocity * 0.01f;
+            else
+                _rigidBody.velocity = Vector3.zero;
+        }
 
+        public void StopUpdate()
+        {
+            var velocity = _rigidBody.velocity;
+            if (initialStopVelocity == null)
+                initialStopVelocity = velocity;
+            if (velocity.magnitude > 0.2)
+            {
+                _rigidBody.velocity -= initialStopVelocity.Value * stopPower;
+            }
+            else
+            {
+                _rigidBody.velocity = Vector3.zero;
+                initialStopVelocity = null;
+            }
         }
     }
 }
