@@ -1,7 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Controls;
-using static UnityEngine.InputSystem.InputAction;
 
 namespace RaceGame
 {
@@ -43,7 +41,7 @@ namespace RaceGame
                     else
                         _rigidBody.velocity -= transform.forward * 1.1f;
                 }
-                if (vector.x != 0)
+                if (velocity.magnitude > 0.1f && vector.x != 0)
                 {
                     var rotation = vector.x > 0 ? rotationRight : rotationLeft;
                     var deltaRotationRight = Quaternion.Euler(rotation * Time.fixedDeltaTime);
