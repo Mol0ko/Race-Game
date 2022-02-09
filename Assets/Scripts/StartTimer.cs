@@ -12,8 +12,7 @@ namespace RaceGame
 
         private bool _growing = true;
 
-        private void Start()
-        {
+        private void OnEnable() {
             _text.text = "3";
         }
 

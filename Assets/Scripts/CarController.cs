@@ -14,10 +14,21 @@ namespace RaceGame
         [SerializeField, Range(0.05f, 0.3f)]
         public float stopPower = 0.1f;
 
-
         private Vector3 rotationRight = new Vector3(0, 30, 0);
         private Vector3 rotationLeft = new Vector3(0, -30, 0);
         private Vector3? initialStopVelocity = null;
+
+        private void OnEnable()
+        {
+            initialStopVelocity = null;
+            _rigidBody.velocity = Vector3.zero;
+            _rigidBody.angularVelocity = Vector3.zero;
+        }
+
+        private void OnDisable()
+        {
+            _rigidBody.velocity = Vector3.zero;
+        }
 
         private void FixedUpdate()
         {
@@ -54,7 +65,7 @@ namespace RaceGame
                 _rigidBody.velocity = Vector3.zero;
         }
 
-        public void StopUpdate()
+        private void StopUpdate()
         {
             var velocity = _rigidBody.velocity;
             if (initialStopVelocity == null)
